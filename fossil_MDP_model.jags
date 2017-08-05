@@ -1,0 +1,18 @@
+model {
+  # Likelihood for MDP
+  for(i in 1:N.rows_fm) {
+    MDP_mean[i] ~ dnorm(NAO_all[pick[i]], MDP_prec[i])
+  }
+  
+  for(j in 2:N.rows_all) {
+    NAO_all[j] ~ dnorm(NAO_all[j-1],prec_f_all[j])
+    prec_f_all[j] <- 1/((time_all[j]-time_all[j-1])*pow(sd_rw,2))
+  }
+
+  # First fossil NAO should have vague prior
+  NAO_all[1] ~ dnorm(0,0.01)  
+
+  # Use a log normal prior on sd_rw, taken from the posterior from the modern data run
+  sd_rw ~ dlnorm(a_rw,b_rw) # a_rw and b_rw should be specified in the data
+
+}
